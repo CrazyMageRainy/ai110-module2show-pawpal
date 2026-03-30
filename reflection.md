@@ -72,7 +72,7 @@ End of objects to list
 
 - Describe one tradeoff your scheduler makes.
 - Why is that tradeoff reasonable for this scenario?
-
+One tradeoff it made is with my detect_conflicst implementation, where the while loop it gave me cause it to check multiple time, with a O(n^2). ITs recommendation lowers it to O(n). However, the new implementation makes more mistakes. missing non-adjacent overlaps.
 ---
 
 ## 3. AI Collaboration
