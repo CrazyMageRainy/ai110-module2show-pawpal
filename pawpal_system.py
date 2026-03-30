@@ -50,10 +50,11 @@ class Pet:
     name: str
     personal_pet_id: str
     species: str
+    task_count: int = 0
     tasks: list[Task] = field(default_factory=list)
-
     def add_task(self, task: Task) -> None:
         self.tasks.append(task)
+        self.task_count += 1 
 
 class Owner:
     def __init__(self):
