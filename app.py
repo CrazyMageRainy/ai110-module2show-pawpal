@@ -1,5 +1,6 @@
 import streamlit as st
-
+from datetime import time
+from pawpal_system import Scheduler, Owner, Pet, Task, TimeSlot
 st.set_page_config(page_title="PawPal+", page_icon="🐾", layout="centered")
 
 st.title("🐾 PawPal+")
@@ -38,10 +39,22 @@ At minimum, your system should:
 
 st.divider()
 
+if "owner" not in st.session_state:
+    st.session_state.owner = Owner()
+
 st.subheader("Quick Demo Inputs (UI only)")
 owner_name = st.text_input("Owner name", value="Jordan")
 pet_name = st.text_input("Pet name", value="Mochi")
 species = st.selectbox("Species", ["dog", "cat", "other"])
+
+if st.button("Add pet"):
+    pet = Pet(name=pet_name, personal_pet_id=f"{pet_name}-01", species=species)
+    st.session_state.owner.add_pet(pet)
+    st.success(f"Added {pet_name} ({species})")
+
+if st.session_state.owner.pets:
+    st.write("Current pets:")
+    st.table([{"Name": p.name, "Species": p.species, "Tasks": p.task_count} for p in st.session_state.owner.pets])
 
 st.markdown("### Tasks")
 st.caption("Add a few tasks. In your final version, these should feed into your scheduler.")
@@ -58,31 +71,55 @@ with col3:
     priority = st.selectbox("Priority", ["low", "medium", "high"], index=2)
 
 if st.button("Add task"):
-    st.session_state.tasks.append(
-        {"title": task_title, "duration_minutes": int(duration), "priority": priority}
-    )
+    if not st.session_state.owner.pets:
+        st.error("Add a pet first before adding tasks.")
+    else:
+        priority_map = {"low": 3, "medium": 5, "high": 8}
+        task = Task(
+            name=task_title,
+            description=task_title,
+            duration=int(duration),
+            priority=priority_map[priority],
+            preference_rating=5,
+        )
+        st.session_state.owner.pets[-1].add_task(task)
+        st.success(f"Added '{task_title}' to {st.session_state.owner.pets[-1].name}")
 
-if st.session_state.tasks:
+all_tasks = st.session_state.owner.get_all_tasks()
+if all_tasks:
     st.write("Current tasks:")
-    st.table(st.session_state.tasks)
+    st.table([{"Task": t.name, "Duration": t.duration, "Priority": t.priority} for t in all_tasks])
 else:
     st.info("No tasks yet. Add one above.")
 
 st.divider()
 
 st.subheader("Build Schedule")
-st.caption("This button should call your scheduling logic once you implement it.")
+st.caption("Set your availability and click generate to build a daily plan.")
+
+avail_col1, avail_col2 = st.columns(2)
+with avail_col1:
+    avail_start = st.time_input("Available from", value=time(8, 0))
+with avail_col2:
+    avail_end = st.time_input("Available until", value=time(18, 0))
 
 if st.button("Generate schedule"):
-    st.warning(
-        "Not implemented yet. Next step: create your scheduling logic (classes/functions) and call it here."
-    )
-    st.markdown(
-        """
-Suggested approach:
-1. Design your UML (draft).
-2. Create class stubs (no logic).
-3. Implement scheduling behavior.
-4. Connect your scheduler here and display results.
-"""
-    )
+    if not st.session_state.owner.pets:
+        st.error("Add a pet first.")
+    elif not st.session_state.owner.get_all_tasks():
+        st.error("Add at least one task first.")
+    elif avail_start >= avail_end:
+        st.error("End time must be after start time.")
+    else:
+        st.session_state.owner.availability = [TimeSlot(avail_start, avail_end)]
+        scheduler = Scheduler(st.session_state.owner)
+        plan = scheduler.generate_plan()
+        st.markdown(f"**Plan for {plan.date}**")
+        if plan.tasks:
+            st.table([
+                {"Task": t.name, "Duration (min)": t.duration, "Priority": t.priority}
+                for t in plan.tasks
+            ])
+        else:
+            st.warning("No tasks could fit in the available time.")
+        st.info(plan.explanation)

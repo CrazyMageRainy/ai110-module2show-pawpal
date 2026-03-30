@@ -12,7 +12,7 @@ task3 = Task("Bath Time", "Give SnowBall a bath", 45, 5, 4, frequency="weekly")
 pet1.add_task(task1)
 pet1.add_task(task2)
 pet1.add_task(task3)
-
+# A lot of manual setup for pets, tasks. WHich then insert into the Owner
 task4 = Task("Cage Cleaning", "Clean Squak's cage thoroughly", 20, 7, 6, frequency="weekly")
 task5 = Task("Seed Refill", "Refill Squak's food and water", 5, 9, 8, frequency="daily")
 task6 = Task("Playtime", "Let Squak out for supervised flying time", 15, 6, 9, frequency="daily")
