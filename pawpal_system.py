@@ -20,16 +20,26 @@ class TimeSlot:
 @dataclass
 class Task:
     name: str
+    description: str
     duration: int          # in minutes
-    priority: int
-    preference_rating: int
+    priority: int          # 1-10
+    preference_rating: int # 1-10
     pet: Pet
+    frequency: str = "once"        # "once", "daily", "weekly"
+    scheduled_time: time | None = None
+    is_completed: bool = False
 
     def __post_init__(self):
         if not 1 <= self.priority <= 10:
             raise ValueError(f"priority must be between 1 and 10, got {self.priority}")
         if not 1 <= self.preference_rating <= 10:
             raise ValueError(f"preference_rating must be between 1 and 10, got {self.preference_rating}")
+        valid_frequencies = {"once", "daily", "weekly"}
+        if self.frequency not in valid_frequencies:
+            raise ValueError(f"frequency must be one of {valid_frequencies}, got '{self.frequency}'")
+
+    def mark_completed(self) -> None:
+        self.is_completed = True
 
     # def edit_task(self, **kwargs) -> None:
     #     for key, value in kwargs.items():
