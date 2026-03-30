@@ -3,13 +3,6 @@ from datetime import date, time
 
 
 @dataclass
-class Pet:
-    name: str
-    personal_pet_id: str
-    species: str
-
-
-@dataclass
 class TimeSlot:
     start_time: time
     end_time: time
@@ -24,7 +17,6 @@ class Task:
     duration: int          # in minutes
     priority: int          # 1-10
     preference_rating: int # 1-10
-    pet: Pet
     frequency: str = "once"        # "once", "daily", "weekly"
     scheduled_time: time | None = None
     is_completed: bool = False
@@ -53,22 +45,29 @@ class Task:
             if key in validated and not 1 <= value <= 10:
                 raise ValueError(f"{key} must be between 1 and 10, got {value}")
             setattr(self, key, value)
+@dataclass
+class Pet:
+    name: str
+    personal_pet_id: str
+    species: str
+    tasks: list[Task] = field(default_factory=list)
 
+    def add_task(self, task: Task) -> None:
+        self.tasks.append(task)
 
 class Owner:
     def __init__(self):
         self.pets: list[Pet] = []
         self.availability: list[TimeSlot] = []
-        self.task_list: list[Task] = []
 
     def add_pet(self, pet: Pet) -> None:
         self.pets.append(pet)
 
+    def get_all_tasks(self) -> list[Task]:
+        return [task for pet in self.pets for task in pet.tasks]
+
     def get_available_slots(self) -> list[TimeSlot]:
         return self.availability
-
-    def create_task(self, task: Task) -> None:
-        self.task_list.append(task)
 
 
 class DailyPlan:
@@ -80,9 +79,9 @@ class DailyPlan:
     def view_daily_plan(self) -> None:
         print(f"Daily Plan for {self.date}")
         for task in self.tasks:
-            print(f"  - {task.name} ({task.duration} min) for {task.pet.name}")
+            print(f"  - {task.name} ({task.duration} min)")
         print(f"\nExplanation: {self.explanation}")
 
     def generate_plan(self, owner: Owner) -> None:
-        # TODO: implement scheduling logic using owner.task_list and owner.availability
+        # TODO: implement scheduling logic using owner.get_all_tasks() and owner.availability
         pass
