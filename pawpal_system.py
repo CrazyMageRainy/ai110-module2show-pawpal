@@ -82,6 +82,36 @@ class DailyPlan:
             print(f"  - {task.name} ({task.duration} min)")
         print(f"\nExplanation: {self.explanation}")
 
-    def generate_plan(self, owner: Owner) -> None:
-        # TODO: implement scheduling logic using owner.get_all_tasks() and owner.availability
-        pass
+
+class Scheduler:
+    def __init__(self, owner: Owner):
+        self.owner = owner
+
+    def get_pending_tasks(self) -> list[Task]:
+        return [task for task in self.owner.get_all_tasks() if not task.is_completed]
+
+    def sort_tasks_by_priority(self, tasks: list[Task]) -> list[Task]:
+        return sorted(tasks, key=lambda t: t.priority, reverse=True)
+
+    def generate_plan(self) -> DailyPlan:
+        plan = DailyPlan()
+        pending = self.get_pending_tasks()
+        sorted_tasks = self.sort_tasks_by_priority(pending)
+
+        available_minutes = 0
+        for slot in self.owner.get_available_slots():
+            start = slot.start_time.hour * 60 + slot.start_time.minute
+            end = slot.end_time.hour * 60 + slot.end_time.minute
+            available_minutes += end - start
+
+        scheduled_minutes = 0
+        for task in sorted_tasks:
+            if scheduled_minutes + task.duration <= available_minutes:
+                plan.tasks.append(task)
+                scheduled_minutes += task.duration
+
+        plan.explanation = (
+            f"Scheduled {len(plan.tasks)} task(s) within "
+            f"{available_minutes} available minutes by priority."
+        )
+        return plan
