@@ -48,3 +48,18 @@ filter_tasks(is_completed, pet_name) — Filter tasks by completion status, pet 
 sort_tasks_by_time(tasks) — Sort tasks by scheduled_time ascending, unscheduled tasks go last
 detect_conflicts() — Find all pairs of scheduled tasks whose time ranges overlap
 check_conflicts() — Lightweight wrapper that returns warning strings instead of raw tuples
+
+
+### Testing PawPal+
+__SORTING__
+test_sort_tasks_by_time_chronological_order:	Tasks come back in earliest-first order regardless of insertion order 2
+test_sort_tasks_by_time_unscheduled_go_last:	Tasks with no scheduled_time sort after all scheduled tasks 2
+__Recurrence__
+test_complete_daily_task_creates_next_day_occurrence: Daily task completion creates a new uncompleted task due tomorrow with same attributes 2
+test_complete_once_task_creates_no_recurrence: One-time task returns None and no new task is added 4
+__Conflicts__
+	test_detect_conflicts_overlapping_tasks:Two tasks at the same time are flagged as a conflict 4
+    test_detect_conflicts_adjacent_tasks_no_conflict: flict	Back-to-back tasks (end time = start time) are NOT flagged 3
+    test_detect_conflicts_ignores_completed_tasks: Completed tasks are excluded from conflict checks 4
+
+command: ``python -m pytest``

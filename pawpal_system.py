@@ -199,3 +199,5 @@ class Scheduler:
             f"{available_minutes} available minutes by priority."
         )
         return plan
+
+## need to verify 
