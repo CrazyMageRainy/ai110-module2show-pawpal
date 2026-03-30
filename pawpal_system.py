@@ -13,7 +13,9 @@ class Pet:
 class TimeSlot:
     start_time: time
     end_time: time
-
+    def __post_init__(self):
+        if self.end_time <= self.start_time:
+            raise ValueError("end_time must be after start_time")
 
 @dataclass
 class Task:
@@ -23,10 +25,24 @@ class Task:
     preference_rating: int
     pet: Pet
 
+    def __post_init__(self):
+        if not 1 <= self.priority <= 10:
+            raise ValueError(f"priority must be between 1 and 10, got {self.priority}")
+        if not 1 <= self.preference_rating <= 10:
+            raise ValueError(f"preference_rating must be between 1 and 10, got {self.preference_rating}")
+
+    # def edit_task(self, **kwargs) -> None:
+    #     for key, value in kwargs.items():
+    #         if hasattr(self, key):
+    #             setattr(self, key, value)
     def edit_task(self, **kwargs) -> None:
+        validated = {"priority", "preference_rating"}
         for key, value in kwargs.items():
-            if hasattr(self, key):
-                setattr(self, key, value)
+            if not hasattr(self, key):
+                continue
+            if key in validated and not 1 <= value <= 10:
+                raise ValueError(f"{key} must be between 1 and 10, got {value}")
+            setattr(self, key, value)
 
 
 class Owner:

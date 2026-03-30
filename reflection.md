@@ -47,12 +47,18 @@ End of objects to list
 
 - Briefly describe your initial UML design.
 - What classes did you include, and what responsibilities did you assign to each?
-  
+  The intial UML design contains the following Objects:
+  1. Owner
+  2. DailyPlan
+  3. Task
+  4. Pet
+  5. TimeSlot
+  The Daily PLan keeps secheduled task within itself. The Owner has a list of timeslots available to add tasks, as well as a list of unscheduled tasks. TimeSlot object is there as a way to implement what times are available to add tasks to. Pet is also there for each pet added to the app.
 **b. Design changes**
 
 - Did your design change during implementation?
 - If yes, describe at least one change and why you made it.
-
+ It didnt change much of the current implementation. It was recommending changes which would be needed if the app had multiple users. It wanted me to put changes I didn't believe is warrented for this project. FOr the TimeSlot, I added a _postinit_ validation which it recommended to verify that the input given is correct (start is before end time) to avoid a logic error. Also it askks me to add another valition to the method "edit_task" in the Task object to be able to edit created tasks.
 ---
 
 ## 2. Scheduling Logic and Tradeoffs
